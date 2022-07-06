@@ -1,3 +1,7 @@
+import random
+
+USER_INPUT_STRING = "Your turn (use 0-9 to place at that position)"
+
 def in_array(array, search):
     for item in search:
         if item not in array:
@@ -8,9 +12,7 @@ def in_array(array, search):
 def user_input(field, input):
     if field[input] != 0:
         # fitness -1
-        input = user_input(int(input("Your turn (use 0-9 to place at that position)")))
-
-        return input
+        input = user_input(int(input(USER_INPUT_STRING)))
 
     return input
 
@@ -43,36 +45,56 @@ def check_player(player):
 
     return False
 
+def opponent_move(field):
+    open = []
+    i = 0
+
+    for spot in field:
+        if spot == 0:
+            open.append(i)
+
+        i += 1
+
+    return open[random.randint(0, len(open) - 1)]
+
+def print_field(field):
+    print(str(field[0]) + str(field[1]) + str(field[2]))
+    print(str(field[3]) + str(field[4]) + str(field[5]))
+    print(str(field[6]) + str(field[7]) + str(field[8]))
+
+def end_turn(field):
+    print_field(field)
+    win = check_win(field)
+
+    if win != 0:
+        print("Player " + str(win) + " won!")
+
+        return False
+
+    return True
+
 def main():
     field = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     turn = True
     run = True
+    print_field(field)
 
     while run:
+        if not turn:
+            field[opponent_move(field)] = 2
+            turn = not turn
+            run = end_turn(field)
+
+            continue
+
         u_input = user_input(
             field,
             int(input(
-                "[" + str(1 if turn else 2) + "] Your turn (use 0-9 to place at that position)")
+                "[" + str(1 if turn else 2) + "] " + USER_INPUT_STRING)
             )
         )
-
-        if u_input == -1:
-            turn = not turn
-            continue;
-
-        field[u_input] = 1 if turn else 2
-
-        print(str(field[0]) + str(field[1]) + str(field[2]))
-        print(str(field[3]) + str(field[4]) + str(field[5]))
-        print(str(field[6]) + str(field[7]) + str(field[8]))
-
-        win = check_win(field)
-
-        if win != 0:
-            print("Player " + str(win) + " won!")
-
-            run = False
-
+        field[u_input] = 1
         turn = not turn
+        run = end_turn(field)
 
 main()
